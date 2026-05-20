@@ -64,20 +64,10 @@ for bcf in tmp_vcf/*.norm.flt.bcf; do
     -s LowConfGT \
     -S . \
     -e 'FMT/DP<5 || FMT/GQ<30' \
-    "$bcf" -Oz -o vcf_gtmasked/${s}.gtmasked.vcf.gz
-
-  bcftools index -t vcf_gtmasked/${s}.gtmasked.vcf.gz
-done
-
-##########
-
-for vcf in vcf_gtmasked/*.gtmasked.vcf.gz; do
-  s=$(basename "$vcf" .gtmasked.vcf.gz)
-
-  bcftools view \
+    "$bcf" -Ou \
+  | bcftools view \
     -i 'QUAL>=30' \
-    "$vcf" -Oz -o vcf_filtered/${s}.filtered.vcf.gz
-
+    -Oz -o vcf_filtered/${s}.filtered.vcf.gz
   bcftools index -t vcf_filtered/${s}.filtered.vcf.gz
 done
 
