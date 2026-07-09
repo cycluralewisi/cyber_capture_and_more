@@ -1,19 +1,39 @@
+########## mpileup and joint call variant via bcftools ##########
+########## this pipe assumes .bam files are handled properly ##########
+
+########## directory setting ##########
+
+mkdir bcf_raw vcf_raw logs_vcf
+
+PROJECT/
+│
+├── bcf_raw/         # raw .bcf and index
+│
+├── vcf_raw/         # raw .vcf and index
+│
+├── ref.fasta        # reference sequence file
+│
+├── bam_cleaned/     # cleaned .bam files
+│
+├── bam_list.txt/    # auto-generate .bam list        
+│
+└── logs_vcf/        # logs mpileup and call
+
 ########## mpileup ##########
 
-mkdir bcf_raw logs_vcf
-ls bam_dedup/*_dedup.bam > bam_list.txt
+ls bam_cleaned/*_cleaned.bam > bam_list.txt
 
 bcftools mpileup \
   --threads 15 \
   -Ou \
-  -f ref_draco.fasta \
+  -f ref.fasta \
   -q 20 -Q 30 \
   -d 10000 \
   -a FORMAT/DP,AD,SP,ADR,ADF \
   -b bam_list.txt \
-  -o bcf_raw/all_samples.bcf \
+  -o bcf_raw/full.bcf \
   2> logs_vcf/mpileup.log
-bcftools index bcf_raw/all_samples.bcf
+bcftools index bcf_raw/full.bcf
 
 ########## call variant ##########
 
@@ -22,7 +42,7 @@ bcftools call \
   -v \
   --ploidy 2 \
   -f GQ,GP \
-  -Oz -o pero_full.vcf.gz \
-  bcf_raw/all_samples.bcf \
+  -Oz -o vcf_raw/full.vcf.gz \
+  bcf_raw/full.bcf \
   2>> logs_vcf/call.log
-bcftools index -t pero_full.vcf.gz
+bcftools index -t vcf_raw/full.vcf.gz
