@@ -6,7 +6,7 @@ Precedures:
     　　　　　↓
     　　　　mapping
     　　　　　↓
-    　bam_nsort_dedup_csort　>　variant_call
+    　bam_nsort_dedup_csort　>　mpileup_call_joint
     　　　　　↓
     　　　bam_consensus
     　　　　　↓
