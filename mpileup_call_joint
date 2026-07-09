@@ -1,0 +1,28 @@
+########## mpileup ##########
+
+mkdir bcf_raw logs_vcf
+ls bam_dedup/*_dedup.bam > bam_list.txt
+
+bcftools mpileup \
+  --threads 15 \
+  -Ou \
+  -f ref_draco.fasta \
+  -q 20 -Q 30 \
+  -d 10000 \
+  -a FORMAT/DP,AD,SP,ADR,ADF \
+  -b bam_list.txt \
+  -o bcf_raw/all_samples.bcf \
+  2> logs_vcf/mpileup.log
+bcftools index bcf_raw/all_samples.bcf
+
+########## call variant ##########
+
+bcftools call \
+  -m \
+  -v \
+  --ploidy 2 \
+  -f GQ,GP \
+  -Oz -o pero_full.vcf.gz \
+  bcf_raw/all_samples.bcf \
+  2>> logs_vcf/call.log
+bcftools index -t pero_full.vcf.gz
